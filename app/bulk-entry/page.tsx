@@ -422,8 +422,8 @@ export default function BulkEntry() {
                         {session.bowlers.map((bowler, bIndex) => (
                           <div key={bIndex} className="ml-2 sm:ml-4 mt-1">
                             • {bowler.name}: Legal {bowler.stats.legal}, Wide {bowler.stats.wide}, Short {bowler.stats.short}
-                            {bowler.stats.fullToss > 0 && `, Full Toss ${bowler.stats.fullToss}`}
-                            {bowler.stats.noBall > 0 && `, No Ball ${bowler.stats.noBall}`}
+                            {(bowler.stats.fullToss || 0) > 0 && `, Full Toss ${bowler.stats.fullToss}`}
+                            {(bowler.stats.noBall || 0) > 0 && `, No Ball ${bowler.stats.noBall}`}
                           </div>
                         ))}
                       </div>
