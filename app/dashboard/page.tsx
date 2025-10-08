@@ -116,6 +116,8 @@ export default function Dashboard() {
   const [filterMode, setFilterMode] = useState<'overall' | 'date'>('overall');
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [loading, setLoading] = useState(true);
+  const [showPlayerModal, setShowPlayerModal] = useState(false);
+  const [modalPlayerName, setModalPlayerName] = useState('');
 
   useEffect(() => {
     fetchSessions();
@@ -524,6 +526,131 @@ export default function Dashboard() {
                 </div>
               )}
             </div>
+
+            {/* Player Rankings */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
+              {/* Batting Rankings */}
+              <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-lg sm:text-xl font-semibold text-gray-800 flex items-center">
+                    🏏 Batting Rankings {filterMode === 'date' && selectedDate ? `(${selectedDate})` : '(Overall)'}
+                  </h3>
+                  <div className="text-xs text-gray-500 hidden sm:block">Click player to view details</div>
+                </div>
+                {teamOverview.length === 0 ? (
+                  <div className="text-center py-8">
+                    <div className="text-3xl mb-4">🏏</div>
+                    <p className="text-gray-500 text-sm">No batting data available</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {teamOverview
+                      .filter(player => player.totalBalls > 0)
+                      .sort((a, b) => b.successRate - a.successRate)
+                      .map((player, index) => (
+                        <div key={player.name} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition cursor-pointer"
+                             onClick={() => {
+                               setModalPlayerName(player.name);
+                               setShowPlayerModal(true);
+                             }}>
+                          <div className="flex items-center space-x-3">
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
+                              index === 0 ? 'bg-yellow-100 text-yellow-800' :
+                              index === 1 ? 'bg-gray-100 text-gray-800' :
+                              index === 2 ? 'bg-orange-100 text-orange-800' :
+                              'bg-blue-50 text-blue-800'
+                            }`}>
+                              {index + 1}
+                            </div>
+                            <div>
+                              <div className="font-medium text-gray-800 text-sm sm:text-base hover:text-blue-600">{player.name}</div>
+                              <div className="text-xs text-gray-500">
+                                {player.totalBalls} balls • {player.goodHit + player.defence} good • {player.missHit + player.edgeBack} poor
+                              </div>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <div className={`text-lg font-bold ${
+                              player.successRate >= 80 ? 'text-green-600' :
+                              player.successRate >= 60 ? 'text-yellow-600' :
+                              'text-red-600'
+                            }`}>
+                              {player.successRate}%
+                            </div>
+                            <div className="text-xs text-gray-500">Success Rate</div>
+                          </div>
+                        </div>
+                      ))}
+                    {teamOverview.filter(player => player.totalBalls > 0).length === 0 && (
+                      <div className="text-center py-4 text-gray-500 text-sm">
+                        No batting data available for ranking
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Bowling Rankings */}
+              <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-lg sm:text-xl font-semibold text-gray-800 flex items-center">
+                    ⚾ Bowling Rankings {filterMode === 'date' && selectedDate ? `(${selectedDate})` : '(Overall)'}
+                  </h3>
+                  <div className="text-xs text-gray-500 hidden sm:block">Click player to view details</div>
+                </div>
+                {teamOverview.length === 0 ? (
+                  <div className="text-center py-8">
+                    <div className="text-3xl mb-4">⚾</div>
+                    <p className="text-gray-500 text-sm">No bowling data available</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {teamOverview
+                      .filter(player => player.totalBowls > 0)
+                      .sort((a, b) => b.bowlingAccuracy - a.bowlingAccuracy)
+                      .map((player, index) => (
+                        <div key={player.name} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition cursor-pointer"
+                             onClick={() => {
+                               setModalPlayerName(player.name);
+                               setShowPlayerModal(true);
+                             }}>
+                          <div className="flex items-center space-x-3">
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
+                              index === 0 ? 'bg-yellow-100 text-yellow-800' :
+                              index === 1 ? 'bg-gray-100 text-gray-800' :
+                              index === 2 ? 'bg-orange-100 text-orange-800' :
+                              'bg-blue-50 text-blue-800'
+                            }`}>
+                              {index + 1}
+                            </div>
+                            <div>
+                              <div className="font-medium text-gray-800 text-sm sm:text-base hover:text-blue-600">{player.name}</div>
+                              <div className="text-xs text-gray-500">
+                                {player.totalBowls} balls • {player.legal + player.short + player.fullToss} good • {player.wide + player.noBall} poor
+                              </div>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <div className={`text-lg font-bold ${
+                              player.bowlingAccuracy >= 80 ? 'text-green-600' :
+                              player.bowlingAccuracy >= 60 ? 'text-yellow-600' :
+                              'text-red-600'
+                            }`}>
+                              {player.bowlingAccuracy}%
+                            </div>
+                            <div className="text-xs text-gray-500">Accuracy</div>
+                          </div>
+                        </div>
+                      ))}
+                    {teamOverview.filter(player => player.totalBowls > 0).length === 0 && (
+                      <div className="text-center py-4 text-gray-500 text-sm">
+                        No bowling data available for ranking
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         )}
 
@@ -694,6 +821,169 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+
+      {/* Player Details Modal */}
+      {showPlayerModal && modalPlayerName && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+            <div className="sticky top-0 bg-white border-b p-4 sm:p-6 rounded-t-lg">
+              <div className="flex justify-between items-center">
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-800 pr-4">{modalPlayerName} - Performance Details</h2>
+                <button
+                  onClick={() => setShowPlayerModal(false)}
+                  className="text-gray-500 hover:text-gray-700 text-3xl font-bold leading-none flex-shrink-0 w-8 h-8 flex items-center justify-center"
+                >
+                  ×
+                </button>
+              </div>
+            </div>
+            
+            <div className="p-4 sm:p-6 space-y-6">
+              {(() => {
+                const playerData = teamOverview.find(p => p.name === modalPlayerName);
+                if (!playerData) return <div>Player data not found</div>;
+
+                return (
+                  <>
+                    {/* Overall Stats Summary */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                        <h3 className="font-semibold text-blue-800 mb-3 flex items-center text-base">
+                          🏏 Batting Performance
+                        </h3>
+                        <div className="space-y-3 text-sm">
+                          <div className="flex justify-between items-center">
+                            <span className="text-gray-700">Success Rate:</span>
+                            <span className={`font-bold text-lg ${
+                              playerData.successRate >= 80 ? 'text-green-600' :
+                              playerData.successRate >= 60 ? 'text-yellow-600' :
+                              'text-red-600'
+                            }`}>{playerData.successRate}%</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-gray-700">Total Balls:</span>
+                            <span className="font-medium text-gray-800">{playerData.totalBalls}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+                        <h3 className="font-semibold text-green-800 mb-3 flex items-center text-base">
+                          ⚾ Bowling Performance
+                        </h3>
+                        <div className="space-y-3 text-sm">
+                          <div className="flex justify-between items-center">
+                            <span className="text-gray-700">Accuracy:</span>
+                            <span className={`font-bold text-lg ${
+                              playerData.bowlingAccuracy >= 80 ? 'text-green-600' :
+                              playerData.bowlingAccuracy >= 60 ? 'text-yellow-600' :
+                              'text-red-600'
+                            }`}>{playerData.bowlingAccuracy}%</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-gray-700">Total Balls:</span>
+                            <span className="font-medium text-gray-800">{playerData.totalBowls}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Detailed Batting Breakdown */}
+                    {playerData.totalBalls > 0 && (
+                      <div className="bg-white border-2 border-gray-200 rounded-lg p-4">
+                        <h4 className="font-semibold text-gray-800 mb-4 text-base">🏏 Batting Breakdown</h4>
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                          <div className="bg-green-100 p-4 rounded-lg text-center border border-green-200">
+                            <div className="text-2xl font-bold text-green-800 mb-1">{playerData.goodHit}</div>
+                            <div className="text-sm font-medium text-green-700 mb-1">Good Hits</div>
+                            <div className="text-xs text-gray-600">{playerData.totalBalls > 0 ? Math.round((playerData.goodHit / playerData.totalBalls) * 100) : 0}%</div>
+                          </div>
+                          <div className="bg-blue-100 p-4 rounded-lg text-center border border-blue-200">
+                            <div className="text-2xl font-bold text-blue-800 mb-1">{playerData.defence}</div>
+                            <div className="text-sm font-medium text-blue-700 mb-1">Defence</div>
+                            <div className="text-xs text-gray-600">{playerData.totalBalls > 0 ? Math.round((playerData.defence / playerData.totalBalls) * 100) : 0}%</div>
+                          </div>
+                          <div className="bg-red-100 p-4 rounded-lg text-center border border-red-200">
+                            <div className="text-2xl font-bold text-red-800 mb-1">{playerData.missHit}</div>
+                            <div className="text-sm font-medium text-red-700 mb-1">Miss Hits</div>
+                            <div className="text-xs text-gray-600">{playerData.totalBalls > 0 ? Math.round((playerData.missHit / playerData.totalBalls) * 100) : 0}%</div>
+                          </div>
+                          <div className="bg-orange-100 p-4 rounded-lg text-center border border-orange-200">
+                            <div className="text-2xl font-bold text-orange-800 mb-1">{playerData.edgeBack}</div>
+                            <div className="text-sm font-medium text-orange-700 mb-1">Edge Back</div>
+                            <div className="text-xs text-gray-600">{playerData.totalBalls > 0 ? Math.round((playerData.edgeBack / playerData.totalBalls) * 100) : 0}%</div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Detailed Bowling Breakdown */}
+                    {playerData.totalBowls > 0 && (
+                      <div className="bg-white border-2 border-gray-200 rounded-lg p-4">
+                        <h4 className="font-semibold text-gray-800 mb-4 text-base">⚾ Bowling Breakdown</h4>
+                        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                          <div className="bg-green-100 p-4 rounded-lg text-center border border-green-200">
+                            <div className="text-2xl font-bold text-green-800 mb-1">{playerData.legal}</div>
+                            <div className="text-sm font-medium text-green-700 mb-1">Legal</div>
+                            <div className="text-xs text-gray-600">{playerData.totalBowls > 0 ? Math.round((playerData.legal / playerData.totalBowls) * 100) : 0}%</div>
+                          </div>
+                          <div className="bg-purple-100 p-4 rounded-lg text-center border border-purple-200">
+                            <div className="text-2xl font-bold text-purple-800 mb-1">{playerData.fullToss}</div>
+                            <div className="text-sm font-medium text-purple-700 mb-1">Full Toss</div>
+                            <div className="text-xs text-gray-600">{playerData.totalBowls > 0 ? Math.round((playerData.fullToss / playerData.totalBowls) * 100) : 0}%</div>
+                          </div>
+                          <div className="bg-yellow-100 p-4 rounded-lg text-center border border-yellow-200">
+                            <div className="text-2xl font-bold text-yellow-800 mb-1">{playerData.short}</div>
+                            <div className="text-sm font-medium text-yellow-700 mb-1">Short</div>
+                            <div className="text-xs text-gray-600">{playerData.totalBowls > 0 ? Math.round((playerData.short / playerData.totalBowls) * 100) : 0}%</div>
+                          </div>
+                          <div className="bg-red-100 p-4 rounded-lg text-center border border-red-200">
+                            <div className="text-2xl font-bold text-red-800 mb-1">{playerData.wide}</div>
+                            <div className="text-sm font-medium text-red-700 mb-1">Wide</div>
+                            <div className="text-xs text-gray-600">{playerData.totalBowls > 0 ? Math.round((playerData.wide / playerData.totalBowls) * 100) : 0}%</div>
+                          </div>
+                          <div className="bg-red-100 p-4 rounded-lg text-center border border-red-200">
+                            <div className="text-2xl font-bold text-red-800 mb-1">{playerData.noBall}</div>
+                            <div className="text-sm font-medium text-red-700 mb-1">No Ball</div>
+                            <div className="text-xs text-gray-600">{playerData.totalBowls > 0 ? Math.round((playerData.noBall / playerData.totalBowls) * 100) : 0}%</div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Success Rate Explanation */}
+                    <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                      <h4 className="font-semibold text-gray-800 mb-3 text-base">📊 How Success Rates Are Calculated</h4>
+                      <div className="space-y-3 text-sm text-gray-700 leading-relaxed">
+                        <div className="bg-white p-3 rounded border-l-4 border-blue-500">
+                          <strong className="text-gray-800">Batting Success Rate:</strong> (Good Hits + Defence) ÷ Total Balls × 100
+                        </div>
+                        <div className="bg-white p-3 rounded border-l-4 border-green-500">
+                          <strong className="text-gray-800">Bowling Accuracy:</strong> (Legal + Short + Full Toss) ÷ Total Balls × 100
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* View Full Progress Button */}
+                    <div className="text-center">
+                      <button
+                        onClick={() => {
+                          setSelectedPlayer(modalPlayerName);
+                          setViewMode('individual');
+                          setShowPlayerModal(false);
+                        }}
+                        className="bg-blue-600 text-white py-2 px-6 rounded-lg hover:bg-blue-700 transition text-sm"
+                      >
+                        📈 View Full Progress Over Time
+                      </button>
+                    </div>
+                  </>
+                );
+              })()}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
