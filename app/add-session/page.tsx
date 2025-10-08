@@ -14,7 +14,7 @@ export default function AddSession() {
   const [currentPlayer, setCurrentPlayer] = useState({
     name: '',
     type: 'batting' as 'batting' | 'bowling',
-    stats: {} as BattingStats | BowlingStats
+    stats: { defence: 0, missHit: 0, goodHit: 0, edgeBack: 0 } as BattingStats | BowlingStats
   });
 
   const [playerNames, setPlayerNames] = useState<string[]>([]);
@@ -57,7 +57,7 @@ export default function AddSession() {
     setCurrentPlayer({
       name: '',
       type: 'batting',
-      stats: {}
+      stats: { defence: 0, missHit: 0, goodHit: 0, edgeBack: 0 }
     });
   };
 
